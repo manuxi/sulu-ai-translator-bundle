@@ -123,6 +123,20 @@ sulu_ai_translator:
 
 Note that setting `exclude` replaces the default, so keep the default patterns in the list if you still want them. To add the button to the "add" forms, remove `'*.add_tabs*'` and `'*.add_form*'`.
 
+## Excluding fields from translation
+
+All fields of type `text_line`, `text_area` and `text_editor` get a translation button and take part in the bulk translation. To exclude a single field (e.g. a name, a code or a source reference), add the parameter `ai_translator` with the value `false` to the field in your form or template XML:
+
+```xml
+<property name="source" type="text_line">
+    <params>
+        <param name="ai_translator" value="false"/>
+    </params>
+</property>
+```
+
+The field then renders without a translation button and is skipped by the bulk translation. Without this bundle installed, Sulu ignores the parameter.
+
 ## Limitations
 
 - Currently only supports fields of type `input[type="text"]`, `textarea` and `<CkEditor />`
