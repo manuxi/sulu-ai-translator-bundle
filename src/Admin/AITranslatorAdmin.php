@@ -7,6 +7,8 @@ namespace Robole\SuluAITranslatorBundle\Admin;
 use Sulu\Bundle\AdminBundle\Admin\Admin;
 use Sulu\Bundle\AdminBundle\Admin\Navigation\NavigationItem;
 use Sulu\Bundle\AdminBundle\Admin\Navigation\NavigationItemCollection;
+use Sulu\Bundle\AdminBundle\Admin\View\FormViewBuilder;
+use Sulu\Bundle\AdminBundle\Admin\View\PreviewFormViewBuilder;
 use Sulu\Bundle\AdminBundle\Admin\View\ToolbarAction;
 use Sulu\Bundle\AdminBundle\Admin\View\ViewBuilderFactoryInterface;
 use Sulu\Bundle\AdminBundle\Admin\View\ViewCollection;
@@ -28,9 +30,24 @@ class AITranslatorAdmin extends Admin
     public const SULU_PAGE_EDIT_VIEW = 'sulu_page.page_edit_form.content';
     public const SULU_SNIPPET_EDIT_VIEW = 'sulu_snippet.snippet.edit_tabs.content';
 
+    public const TOOLBAR_ACTION = 'ai_translator.toolbar'; // Key of AITranslatorToolbarAction.js as registered in app.js
+
+    /**
+     * Toolbar actions that save the form. Content entities (pages, articles, snippets, ...) use
+     * "save_with_publishing", other resources use "save".
+     */
+    private const SAVE_TOOLBAR_ACTIONS = ['sulu_admin.save', 'sulu_admin.save_with_publishing'];
+
+    /**
+     * @param string[] $attachViews     names of views that always get the toolbar action, without any check
+     * @param string[] $excludePatterns fnmatch patterns of view names that never get the toolbar action automatically
+     */
     public function __construct(
         private readonly ViewBuilderFactoryInterface $viewBuilderFactory,
-        private readonly SecurityCheckerInterface $securityChecker
+        private readonly SecurityCheckerInterface $securityChecker,
+        private readonly bool $autoAttach = true,
+        private readonly array $attachViews = [],
+        private readonly array $excludePatterns = ['*.settings', '*.add_tabs*', '*.add_form*']
     ) {
     }
 
@@ -52,9 +69,7 @@ class AITranslatorAdmin extends Admin
     public function configureViews(ViewCollection $viewCollection): void
     {
         $this->addUsageStatisticsSettingsView($viewCollection);
-        $this->addPageEditToolbarAction($viewCollection);
-        $this->addArticleEditToolbarAction($viewCollection);
-        $this->addSnippetEditToolbarAction($viewCollection);
+        $this->addToolbarActions($viewCollection);
     }
 
     public function getSecurityContexts()
@@ -98,48 +113,109 @@ class AITranslatorAdmin extends Admin
         );
     }
 
-    private function addPageEditToolbarAction(ViewCollection $viewCollection): void
+    private function addToolbarActions(ViewCollection $viewCollection): void
     {
-        try {
-            $pageView = $viewCollection->get(self::SULU_PAGE_EDIT_VIEW);
-            $pageView->setOption('toolbarActions', [
-                ...$pageView->getView()->getOption('toolbarActions'),
-                new ToolbarAction('ai_translator.toolbar')
-            ]);
-            $viewCollection->add($pageView);
-        } catch (\Exception) {
-            // View not available
-        }
-    }
+        foreach (array_keys($viewCollection->all()) as $viewName) {
+            $viewName = (string) $viewName;
 
-    private function addArticleEditToolbarAction(ViewCollection $viewCollection): void
-    {
-        foreach ($viewCollection->all() as $viewName => $articleEditView) {
-            if (!preg_match(self::SULU_ARTICLE_EDIT_VIEW_PATTERN, (string) $viewName)) {
+            if ($this->isExcluded($viewName)) {
                 continue;
             }
 
-            try {
-                $articleEditView->setOption('toolbarActions', [
-                    ...$articleEditView->getView()->getOption('toolbarActions'),
-                    new ToolbarAction('ai_translator.toolbar')
-                ]);
-                $viewCollection->add($articleEditView);
-            } catch (\Exception) {
-                // View not available
+            if ($this->isKnownEditView($viewName) || ($this->autoAttach && $this->isLocalizedSaveForm($viewCollection, $viewName))) {
+                $this->addToolbarAction($viewCollection, $viewName);
+            }
+        }
+
+        foreach ($this->attachViews as $viewName) {
+            if ($viewCollection->has($viewName)) {
+                $this->addToolbarAction($viewCollection, $viewName);
             }
         }
     }
 
-    private function addSnippetEditToolbarAction(ViewCollection $viewCollection): void
+    private function isKnownEditView(string $viewName): bool
+    {
+        return self::SULU_PAGE_EDIT_VIEW === $viewName
+            || self::SULU_SNIPPET_EDIT_VIEW === $viewName
+            || self::SULU_ARTICLE_EDIT_VIEW === $viewName
+            || 1 === preg_match(self::SULU_ARTICLE_EDIT_VIEW_PATTERN, $viewName);
+    }
+
+    private function isExcluded(string $viewName): bool
+    {
+        foreach ($this->excludePatterns as $pattern) {
+            if (fnmatch($pattern, $viewName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * A form view that is shown per locale (itself or via its parent tab view) and has a save action.
+     */
+    private function isLocalizedSaveForm(ViewCollection $viewCollection, string $viewName): bool
     {
         try {
-            $snippetEditView = $viewCollection->get(self::SULU_SNIPPET_EDIT_VIEW);
-            $snippetEditView->setOption('toolbarActions', [
-                ...$snippetEditView->getView()->getOption('toolbarActions'),
-                new ToolbarAction('ai_translator.toolbar')
+            $view = $viewCollection->get($viewName)->getView();
+
+            if (!in_array($view->getType(), [FormViewBuilder::TYPE, PreviewFormViewBuilder::TYPE], true)) {
+                return false;
+            }
+
+            if (!$this->hasLocales($viewCollection, $viewName)) {
+                return false;
+            }
+
+            foreach ($view->getOption('toolbarActions') ?? [] as $toolbarAction) {
+                if ($toolbarAction instanceof ToolbarAction && in_array($toolbarAction->getType(), self::SAVE_TOOLBAR_ACTIONS, true)) {
+                    return true;
+                }
+            }
+        } catch (\Exception) {
+            // View not available or incomplete
+        }
+
+        return false;
+    }
+
+    private function hasLocales(ViewCollection $viewCollection, string $viewName): bool
+    {
+        $visited = [];
+
+        while (null !== $viewName && !isset($visited[$viewName]) && $viewCollection->has($viewName)) {
+            $visited[$viewName] = true;
+            $view = $viewCollection->get($viewName)->getView();
+
+            if (!empty($view->getOption('locales'))) {
+                return true;
+            }
+
+            $viewName = $view->getParent();
+        }
+
+        return false;
+    }
+
+    private function addToolbarAction(ViewCollection $viewCollection, string $viewName): void
+    {
+        try {
+            $viewBuilder = $viewCollection->get($viewName);
+            $toolbarActions = $viewBuilder->getView()->getOption('toolbarActions') ?? [];
+
+            foreach ($toolbarActions as $toolbarAction) {
+                if ($toolbarAction instanceof ToolbarAction && self::TOOLBAR_ACTION === $toolbarAction->getType()) {
+                    return;
+                }
+            }
+
+            $viewBuilder->setOption('toolbarActions', [
+                ...array_values($toolbarActions),
+                new ToolbarAction(self::TOOLBAR_ACTION),
             ]);
-            $viewCollection->add($snippetEditView);
+            $viewCollection->add($viewBuilder);
         } catch (\Exception) {
             // View not available
         }
