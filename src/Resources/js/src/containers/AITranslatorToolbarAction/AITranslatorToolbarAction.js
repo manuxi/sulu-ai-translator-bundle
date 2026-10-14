@@ -72,9 +72,10 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
         }
 
         this.setButtonLabelSpan(
-            `${translate("app.translator_bulk_translate")} (${
-                totalItemsLength - activeItemsLength
-            }/${totalItemsLength})`
+            translate("app.translator_bulk_translated", {
+                done: totalItemsLength - activeItemsLength,
+                total: totalItemsLength,
+            })
         );
 
         this.setButtonProgress(
@@ -85,8 +86,8 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
         );
 
         if (activeItemsLength === 0) {
-            // Bulk translation completed!
-            this.resetDefaultButtonStyle();
+            // Bulk translation completed! Label and progress bar keep the result
+            // until the next bulk translation is started.
             translateQueueStore.resetQueue();
         }
     }
@@ -125,6 +126,7 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
 
     @action handleDialogConfirm() {
         this.showDialog = false;
+        this.resetDefaultButtonStyle();
         this.toggleBlocks();
 
         // @todo A better implementation would wait for all blocks to be opened.
