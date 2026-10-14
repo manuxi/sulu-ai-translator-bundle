@@ -42,6 +42,20 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('permissions')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->defaultFalse()
+                            ->info('Restrict translating to roles with the permission of the area (user roles > AI Translator).')
+                        ->end()
+                        ->arrayNode('areas')
+                            ->scalarPrototype()->end()
+                            ->defaultValue(['pages', 'articles', 'snippets'])
+                            ->info('Resource keys that get their own permission. All other resources share the area "other".')
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

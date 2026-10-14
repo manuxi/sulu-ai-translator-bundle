@@ -24,6 +24,8 @@ class SuluAITranslatorExtension extends Extension
         $container->setParameter('sulu_ai_translator.toolbar.auto_attach', $config['toolbar']['auto_attach']);
         $container->setParameter('sulu_ai_translator.toolbar.views', $config['toolbar']['views']);
         $container->setParameter('sulu_ai_translator.toolbar.exclude', $config['toolbar']['exclude']);
+        $container->setParameter('sulu_ai_translator.permissions.enabled', $config['permissions']['enabled']);
+        $container->setParameter('sulu_ai_translator.permissions.areas', $config['permissions']['areas']);
 
         /**
          * @deprecated Migrate to PHP config files

@@ -128,6 +128,26 @@ sulu_ai_translator:
 
 Note that setting `exclude` replaces the default, so keep the default patterns in the list if you still want them. To add the button to the "add" forms, remove `'*.add_tabs*'` and `'*.add_form*'`.
 
+## Permissions
+
+By default everyone who can edit a form may translate in it. To restrict this to certain roles, enable the permissions:
+
+```yaml
+sulu_ai_translator:
+    permissions:
+        enabled: false                       # true: only roles with the permission of an area may translate there
+        areas: [pages, articles, snippets]   # resource keys with their own permission, all others share the area "other"
+```
+
+With `enabled: true` the permission group "AI Translator" in *Settings > User roles* gets one row per area plus the row `other` (column "Edit"). An area is the resource key of the form (`pages`, `articles`, `snippets`, `events`, ...). Pages, snippets and articles of all groups are listed by default; forms of other resources (e.g. your own content bundles, media, categories) fall under `other` unless you add their resource key to `areas`.
+
+Without the permission of its area the user gets neither the toolbar button nor the buttons at the fields, and the translation endpoint answers with 403. The existing permission for the usage statistics is not affected.
+
+Note:
+
+- After enabling the permissions nobody may translate until the roles are updated, so set the roles first or right after the update.
+- The resource key is sent by the browser. A user who may translate in any area could therefore have text of another area translated by calling the endpoint directly. This only uses translation quota, nothing is saved (saving is protected by the regular Sulu permissions).
+
 ## Limitations
 
 - Currently only supports fields of type `input[type="text"]`, `textarea` and `<CkEditor />`
