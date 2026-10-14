@@ -112,12 +112,17 @@ sulu_ai_translator:
         exclude: ['*.settings', '*.add_tabs*', '*.add_form*'] # fnmatch patterns of view names that never get the button automatically
 ```
 
+Two rules apply on top of that, also to pages, snippets and articles:
+
+- The page tabs "Content", "SEO" and "Excerpt" always get the button. They are listed explicitly because pages do not meet the criteria above (the locales come from the webspace and the save action is part of a dropdown).
+- A view whose `resourceKey` differs from the `resourceKey` of its parent view (e.g. the settings tab of a language independent entity inside localized article tabs) does not get the button automatically, because translating it would overwrite the data of all languages. Add it to `views` if you want it anyway.
+
 Example for a view that does not meet the criteria above, and for a view that should not get the button:
 
 ```yaml
 sulu_ai_translator:
     toolbar:
-        views: ['sulu_page.page_edit_form.seo']
+        views: ['app.custom_form.details']
         exclude: ['*.settings', '*.add_tabs*', '*.add_form*', 'sulu_media.*']
 ```
 

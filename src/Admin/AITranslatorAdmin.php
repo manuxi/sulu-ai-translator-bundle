@@ -28,6 +28,7 @@ class AITranslatorAdmin extends Admin
     public const SULU_ARTICLE_EDIT_VIEW = 'sulu_article.article.edit_tabs_default.content';
     public const SULU_ARTICLE_EDIT_VIEW_PATTERN = '/^sulu_article\.article\.edit_tabs_.+\.content$/'; // one view per article group
     public const SULU_PAGE_EDIT_VIEW = 'sulu_page.page_edit_form.content';
+    public const SULU_PAGE_EDIT_VIEW_PATTERN = '/^sulu_page\.page_edit_form\.(content|seo|excerpt)$/';
     public const SULU_SNIPPET_EDIT_VIEW = 'sulu_snippet.snippet.edit_tabs.content';
 
     public const TOOLBAR_ACTION = 'ai_translator.toolbar'; // Key of AITranslatorToolbarAction.js as registered in app.js
@@ -122,6 +123,10 @@ class AITranslatorAdmin extends Admin
                 continue;
             }
 
+            if ($this->hasForeignResourceKey($viewCollection, $viewName)) {
+                continue;
+            }
+
             if ($this->isKnownEditView($viewName) || ($this->autoAttach && $this->isLocalizedSaveForm($viewCollection, $viewName))) {
                 $this->addToolbarAction($viewCollection, $viewName);
             }
@@ -134,12 +139,41 @@ class AITranslatorAdmin extends Admin
         }
     }
 
+    /**
+     * Pages are not found by the automatic detection: their locales come from the webspace (no "locales" option)
+     * and the save action is part of a dropdown. Therefore all page tabs that contain fields are listed here.
+     */
     private function isKnownEditView(string $viewName): bool
     {
         return self::SULU_PAGE_EDIT_VIEW === $viewName
+            || 1 === preg_match(self::SULU_PAGE_EDIT_VIEW_PATTERN, $viewName)
             || self::SULU_SNIPPET_EDIT_VIEW === $viewName
             || self::SULU_ARTICLE_EDIT_VIEW === $viewName
             || 1 === preg_match(self::SULU_ARTICLE_EDIT_VIEW_PATTERN, $viewName);
+    }
+
+    /**
+     * A view whose resource differs from the resource of its parent view is a tab of another entity inside the
+     * tabs of the parent, e.g. the settings of a language independent entity inside localized tabs. It would
+     * inherit the locales of the parent, but translating it would overwrite the data of all languages.
+     */
+    private function hasForeignResourceKey(ViewCollection $viewCollection, string $viewName): bool
+    {
+        try {
+            $view = $viewCollection->get($viewName)->getView();
+            $parentName = $view->getParent();
+
+            if (null === $parentName || !$viewCollection->has($parentName)) {
+                return false;
+            }
+
+            $resourceKey = $view->getOption('resourceKey');
+            $parentResourceKey = $viewCollection->get($parentName)->getView()->getOption('resourceKey');
+
+            return null !== $resourceKey && null !== $parentResourceKey && $resourceKey !== $parentResourceKey;
+        } catch (\Exception) {
+            return false;
+        }
     }
 
     private function isExcluded(string $viewName): bool
