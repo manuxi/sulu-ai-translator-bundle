@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Robole\SuluAITranslatorBundle\Admin;
 
+use Robole\SuluAITranslatorBundle\Service\TranslationPermissionChecker;
 use Sulu\Bundle\AdminBundle\Admin\Admin;
 use Sulu\Bundle\AdminBundle\Admin\Navigation\NavigationItem;
 use Sulu\Bundle\AdminBundle\Admin\Navigation\NavigationItemCollection;
@@ -33,6 +34,8 @@ class AITranslatorAdmin extends Admin
 
     public const TOOLBAR_ACTION = 'ai_translator.toolbar'; // Key of AITranslatorToolbarAction.js as registered in app.js
 
+    public const CONFIG_KEY = 'sulu_ai_translator'; // Key of the config hook in app.js
+
     /**
      * Toolbar actions that save the form. Content entities (pages, articles, snippets, ...) use
      * "save_with_publishing", other resources use "save".
@@ -46,6 +49,7 @@ class AITranslatorAdmin extends Admin
     public function __construct(
         private readonly ViewBuilderFactoryInterface $viewBuilderFactory,
         private readonly SecurityCheckerInterface $securityChecker,
+        private readonly TranslationPermissionChecker $permissionChecker,
         private readonly bool $autoAttach = true,
         private readonly array $attachViews = [],
         private readonly array $excludePatterns = ['*.settings', '*.add_tabs*', '*.add_form*']
@@ -75,14 +79,46 @@ class AITranslatorAdmin extends Admin
 
     public function getSecurityContexts()
     {
+        $contexts = [
+            self::SECURITY_CONTEXT => [
+                PermissionTypes::VIEW,
+            ],
+        ];
+
+        if ($this->permissionChecker->isEnabled()) {
+            foreach ($this->permissionChecker->getAreas() as $area) {
+                $contexts[$this->permissionChecker->getSecurityContext($area)] = [
+                    PermissionTypes::EDIT,
+                ];
+            }
+        }
+
         return [
             self::SULU_ADMIN_SECURITY_SYSTEM => [
-                'AI Translator' => [
-                    self::SECURITY_CONTEXT => [
-                        PermissionTypes::VIEW,
-                    ],
-                ],
+                'AI Translator' => $contexts,
             ],
+        ];
+    }
+
+    public function getConfigKey(): ?string
+    {
+        return self::CONFIG_KEY;
+    }
+
+    /**
+     * Tells the admin UI which areas the current user may translate in (field buttons).
+     */
+    public function getConfig(): ?array
+    {
+        $allowed = [];
+
+        foreach ($this->permissionChecker->getAreas() as $area) {
+            $allowed[$area] = $this->permissionChecker->isAllowed($area);
+        }
+
+        return [
+            'permissions' => $this->permissionChecker->isEnabled(),
+            'allowed' => $allowed,
         ];
     }
 
@@ -233,8 +269,34 @@ class AITranslatorAdmin extends Admin
         return false;
     }
 
+    /**
+     * The resource key of the view or of the next parent view that has one.
+     */
+    private function findResourceKey(ViewCollection $viewCollection, string $viewName): ?string
+    {
+        $visited = [];
+
+        while (null !== $viewName && !isset($visited[$viewName]) && $viewCollection->has($viewName)) {
+            $visited[$viewName] = true;
+            $view = $viewCollection->get($viewName)->getView();
+            $resourceKey = $view->getOption('resourceKey');
+
+            if (is_string($resourceKey) && '' !== $resourceKey) {
+                return $resourceKey;
+            }
+
+            $viewName = $view->getParent();
+        }
+
+        return null;
+    }
+
     private function addToolbarAction(ViewCollection $viewCollection, string $viewName): void
     {
+        if (!$this->permissionChecker->isAllowed($this->findResourceKey($viewCollection, $viewName))) {
+            return;
+        }
+
         try {
             $viewBuilder = $viewCollection->get($viewName);
             $toolbarActions = $viewBuilder->getView()->getOption('toolbarActions') ?? [];
