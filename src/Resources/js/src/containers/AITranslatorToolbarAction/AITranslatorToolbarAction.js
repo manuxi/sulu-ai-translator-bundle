@@ -11,9 +11,10 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
     @observable showDialog = false;
     buttonRef = undefined;
     disposer = null;
+    localeDisposer = null;
 
-    constructor(props) {
-        super(props);
+    constructor(props, ...args) {
+        super(props, ...args);
 
         this.disposer = reaction(
             () => [
@@ -27,11 +28,22 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
                 );
             }
         );
+
+        // The result of a bulk translation belongs to the locale it was done in. The button stays mounted when
+        // the locale is switched, so label and progress bar have to be reset.
+        this.localeDisposer = reaction(
+            () => props?.locale?.get(),
+            () => this.resetDefaultButtonStyle()
+        );
     }
 
     componentWillUnmount() {
         if (this.disposer) {
             this.disposer();
+        }
+
+        if (this.localeDisposer) {
+            this.localeDisposer();
         }
     }
 
@@ -116,7 +128,7 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
     }
 
     setButtonLabelSpan(text = "") {
-        const labelSpan = this.buttonRef.querySelectorAll("span")[1];
+        const labelSpan = this.buttonRef?.querySelectorAll("span")[1];
 
         if (labelSpan) {
             labelSpan.innerText = text;
@@ -135,6 +147,7 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
     }
 
     resetDefaultButtonStyle() {
+        this.buttonRef?.classList.remove("translator__bulk");
         this.setButtonProgress(0);
         this.setButtonLabelSpan(translate("app.translator_bulk_translate"));
     }
