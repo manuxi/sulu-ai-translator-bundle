@@ -99,6 +99,11 @@ export default class AITranslatorToolbarAction extends AbstractListToolbarAction
 
         this.buttonRef = button;
         this.buttonRef.classList.add("translator__bulk-btn");
+
+        // The element can be reused after a tab switch and still show the result of the last bulk translation
+        if (!translateQueueStore.bulkTranslateInProgress) {
+            this.resetDefaultButtonStyle();
+        }
     }
 
     updateState(activeItemsLength, totalItemsLength) {
