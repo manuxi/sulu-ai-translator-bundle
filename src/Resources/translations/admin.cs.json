@@ -10,5 +10,12 @@
     "app.translator_bulk_translate_dialog_text": "Tato akce přeloží všechna pole do cílového jazyka. Tento proces může zabrat u většího počtu obsahu dlouhou dobu. Chcete pokračovat?",
     "app.translator_error": "Překlad nelze načíst. Prosím zkontrolujte své připojení k internetu a zkuste to znovu.",
     "app.translator_translate": "Kliknutím přeložíte pole do cílového jazyka",
-    "app.translator_undo_translation": "Kliknutím vrátíte zpět původní text"
+    "app.translator_undo_translation": "Kliknutím vrátíte zpět původní text",
+    "app.translator_dashboard_characters": "Znaky v tomto měsíci",
+    "app.translator_dashboard_manage": "Spravovat účet DeepL: www.deepl.com/your-account/subscription",
+    "app.translator_dashboard_no_key": "Není nastaven žádný API klíč DeepL. Nastavte jej v sulu_ai_translator.deepl_api_key (proměnná prostředí DEEPL_API_KEY).",
+    "app.translator_dashboard_key_rejected": "DeepL odmítl API klíč. Zkontrolujte prosím DEEPL_API_KEY.",
+    "app.translator_dashboard_unreachable": "DeepL není dostupný. Zkontrolujte prosím připojení serveru k internetu.",
+    "app.translator_dashboard_failed": "Spotřebu se nepodařilo z DeepL načíst. Podrobnosti jsou v logu.",
+    "app.translator_dashboard_no_usage": "DeepL pro tento účet nevrací žádné údaje o spotřebě."
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Loaded only if manuxi/sulu-dashboard-bundle is installed and usage_statistics.dashboard is true -->
+        <service id="ai_translator.dashboard_widget"
+            class="Robole\SuluAITranslatorBundle\Dashboard\DeeplUsageWidget"
+            autoconfigure="true">
+            <argument type="service_closure" id="ai_translator.deepl_service" />
+            <argument>%sulu_ai_translator.deepl_api_key%</argument>
+            <argument type="service" id="logger" on-invalid="null" />
+        </service>
+    </services>
+</container>

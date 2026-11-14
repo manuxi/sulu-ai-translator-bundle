@@ -18,6 +18,7 @@
             <argument>%sulu_ai_translator.toolbar.auto_attach%</argument>
             <argument>%sulu_ai_translator.toolbar.views%</argument>
             <argument>%sulu_ai_translator.toolbar.exclude%</argument>
+            <argument>%sulu_ai_translator.usage_statistics.settings_page%</argument>
 
             <tag name="sulu.admin" />
             <tag name="sulu.context" context="admin" />

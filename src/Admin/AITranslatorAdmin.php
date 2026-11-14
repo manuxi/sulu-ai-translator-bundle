@@ -45,6 +45,7 @@ class AITranslatorAdmin extends Admin
     /**
      * @param string[] $attachViews     names of views that always get the toolbar action, without any check
      * @param string[] $excludePatterns fnmatch patterns of view names that never get the toolbar action automatically
+     * @param bool     $settingsPage    false: no usage statistics page in the settings (the permission stays, e.g. for the dashboard tile)
      */
     public function __construct(
         private readonly ViewBuilderFactoryInterface $viewBuilderFactory,
@@ -52,7 +53,8 @@ class AITranslatorAdmin extends Admin
         private readonly TranslationPermissionChecker $permissionChecker,
         private readonly bool $autoAttach = true,
         private readonly array $attachViews = [],
-        private readonly array $excludePatterns = ['*.settings', '*.add_tabs*', '*.add_form*']
+        private readonly array $excludePatterns = ['*.settings', '*.add_tabs*', '*.add_form*'],
+        private readonly bool $settingsPage = true
     ) {
     }
 
@@ -124,6 +126,10 @@ class AITranslatorAdmin extends Admin
 
     private function addUsageStatisticsNavigationItem(NavigationItemCollection $navigationItemCollection): void
     {
+        if (!$this->settingsPage) {
+            return;
+        }
+
         if (!$this->securityChecker->hasPermission(static::SECURITY_CONTEXT, PermissionTypes::VIEW)) {
             return;
         }
@@ -137,6 +143,10 @@ class AITranslatorAdmin extends Admin
 
     private function addUsageStatisticsSettingsView(ViewCollection $viewCollection): void
     {
+        if (!$this->settingsPage) {
+            return;
+        }
+
         if (!$this->securityChecker->hasPermission(static::SECURITY_CONTEXT, PermissionTypes::VIEW)) {
             return;
         }

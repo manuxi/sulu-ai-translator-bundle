@@ -10,5 +10,12 @@
     "app.translator_bulk_translate_dialog_text": "Cette action traduira tous les champs dans la langue cible. Cela peut prendre un certain temps pour des contenus volumineux. Voulez-vous continuer?",
     "app.translator_error": "La traduction n'a pas pu être chargée. Veuillez vérifier la connexion Internet et réessayer.",
     "app.translator_translate": "Cliquez pour traduire le champ dans la langue cible",
-    "app.translator_undo_translation": "Cliquez pour annuler la traduction du champ"
+    "app.translator_undo_translation": "Cliquez pour annuler la traduction du champ",
+    "app.translator_dashboard_characters": "Caractères ce mois-ci",
+    "app.translator_dashboard_manage": "Gérer le compte DeepL : www.deepl.com/your-account/subscription",
+    "app.translator_dashboard_no_key": "Aucune clé API DeepL n'est configurée. Renseignez-la dans sulu_ai_translator.deepl_api_key (variable d'environnement DEEPL_API_KEY).",
+    "app.translator_dashboard_key_rejected": "DeepL a refusé la clé API. Veuillez vérifier DEEPL_API_KEY.",
+    "app.translator_dashboard_unreachable": "DeepL est injoignable. Veuillez vérifier la connexion Internet du serveur.",
+    "app.translator_dashboard_failed": "La consommation n'a pas pu être récupérée auprès de DeepL. Les détails figurent dans le journal.",
+    "app.translator_dashboard_no_usage": "DeepL ne fournit aucune donnée de consommation pour ce compte."
 }

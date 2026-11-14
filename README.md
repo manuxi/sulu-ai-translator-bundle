@@ -14,7 +14,7 @@
 ## Features
 
 - DeepLService to fetch translations and usage statistics from DeepL API
-- "Usage statistics" admin view with permission
+- "Usage statistics" admin view with permission, optionally also as a tile on the dashboard (see [Usage statistics](#usage-statistics))
 - Translation button next to input fields
 - Toolbar button to bulk translate all fields on page, snippet and article (all article groups) edit views. Every other localized form view with a save action gets the button as well, e.g. the views of your own content bundles (see [Toolbar button configuration](#toolbar-button-configuration))
 - Supports Sulu 3
@@ -92,6 +92,31 @@ DEEPL_API_KEY="..."
 ```
 
 8. Grant permissions in Sulu backend to access "DeepL Usage Statistics" view.
+
+## Usage statistics
+
+The DeepL usage of the month is shown in two places. Both are on by default and can be switched off independently:
+
+```yaml
+sulu_ai_translator:
+    usage_statistics:
+        settings_page: true   # false: no "DeepL Usage Statistics" entry and view in the settings
+        dashboard: true       # false: no tile on the dashboard
+```
+
+Both use the permission "DeepL Usage Statistics" (`sulu.settings.access_usage_statistics`) in *Settings > User roles*. It stays when `settings_page` is `false`, because the tile needs it.
+
+### Dashboard tile
+
+If [manuxi/sulu-dashboard-bundle](https://github.com/manuxi/SuluDashboardBundle) is installed, the bundle adds a tile "DeepL Usage Statistics" to its dashboard: a bar with the characters used this month, in the normal colour below 80 %, orange from 80 % and red at 100 %. The dashboard is only a suggestion, nothing changes without it (the tile services are not even loaded):
+
+```console
+composer require manuxi/sulu-dashboard-bundle
+```
+
+The tile never fails silently. If there is no API key, if DeepL rejects the key or cannot be reached, or if the account has no usage data, the tile says so in plain words instead of the bar. Technical details of a failed request are written to the log.
+
+Use `usage_statistics.settings_page: false` if the tile is enough for you and the extra page in the settings is not needed.
 
 ## Toolbar button configuration
 
@@ -185,11 +210,19 @@ The field then renders without a translation button and is skipped by the bulk t
 
 > composer require robole/sulu-ai-translator-bundle:@dev
 
-3. Check the coding standards:
+3. Run the tests and PHPStan. The tests of the dashboard tile need a checkout of the optional dashboard bundle, which is not part of `composer.json`:
+
+> SULU_DASHBOARD_BUNDLE_PATH=/path/to/SuluDashboardBundle composer test
+>
+> SULU_DASHBOARD_BUNDLE_PATH=/path/to/SuluDashboardBundle composer phpstan
+
+Without the variable the tests of the tile are skipped.
+
+4. Check the coding standards:
 
 > composer php-cs
 
-4. Apply coding standards:
+5. Apply coding standards:
 
 > composer php-cs-fix
 

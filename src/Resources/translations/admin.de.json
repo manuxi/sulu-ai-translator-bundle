@@ -10,5 +10,12 @@
     "app.translator_bulk_translate_dialog_text": "Diese Aktion übersetzt alle Felder in die Zielsprache. Dies kann bei umfangreichen Inhalten eine längere Zeit in Anspruch nehmen. Möchten Sie fortfahren?",
     "app.translator_error": "Übersetzung konnte nicht geladen werden. Bitte prüfen Sie die Internetverbindung und versuchen Sie es erneut.",
     "app.translator_translate": "Klicken, um Feld in Zielsprache zu übersetzen",
-    "app.translator_undo_translation": "Klicken, um Übersetzung des Feldes rückgängig zu machen"
+    "app.translator_undo_translation": "Klicken, um Übersetzung des Feldes rückgängig zu machen",
+    "app.translator_dashboard_characters": "Zeichen in diesem Monat",
+    "app.translator_dashboard_manage": "DeepL-Konto verwalten: www.deepl.com/your-account/subscription",
+    "app.translator_dashboard_no_key": "Es ist kein DeepL-API-Schlüssel hinterlegt. Tragen Sie ihn unter sulu_ai_translator.deepl_api_key (Umgebungsvariable DEEPL_API_KEY) ein.",
+    "app.translator_dashboard_key_rejected": "DeepL hat den API-Schlüssel abgelehnt. Bitte prüfen Sie DEEPL_API_KEY.",
+    "app.translator_dashboard_unreachable": "DeepL ist nicht erreichbar. Bitte prüfen Sie die Internetverbindung des Servers.",
+    "app.translator_dashboard_failed": "Der Verbrauch konnte von DeepL nicht abgerufen werden. Details stehen im Log.",
+    "app.translator_dashboard_no_usage": "DeepL liefert für dieses Konto keine Verbrauchsangaben."
 }

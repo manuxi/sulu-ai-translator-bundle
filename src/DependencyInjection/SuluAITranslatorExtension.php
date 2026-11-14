@@ -24,6 +24,8 @@ class SuluAITranslatorExtension extends Extension
         $container->setParameter('sulu_ai_translator.toolbar.auto_attach', $config['toolbar']['auto_attach']);
         $container->setParameter('sulu_ai_translator.toolbar.views', $config['toolbar']['views']);
         $container->setParameter('sulu_ai_translator.toolbar.exclude', $config['toolbar']['exclude']);
+        $container->setParameter('sulu_ai_translator.usage_statistics.settings_page', $config['usage_statistics']['settings_page']);
+        $container->setParameter('sulu_ai_translator.usage_statistics.dashboard', $config['usage_statistics']['dashboard']);
         $container->setParameter('sulu_ai_translator.permissions.enabled', $config['permissions']['enabled']);
         $container->setParameter('sulu_ai_translator.permissions.areas', $config['permissions']['areas']);
 
@@ -34,5 +36,15 @@ class SuluAITranslatorExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.xml');
         $loader->load('controller.xml');
+
+        // The dashboard is optional (composer "suggest"): the tile is only loaded if its interface is available.
+        // The interface is given as a string, so this class does not need the dashboard bundle.
+        if ($config['usage_statistics']['dashboard'] && ContainerBuilder::willBeAvailable(
+            'manuxi/sulu-dashboard-bundle',
+            'Manuxi\SuluDashboardBundle\Widget\DashboardWidgetInterface',
+            ['robole/sulu-ai-translator-bundle']
+        )) {
+            $loader->load('dashboard.xml');
+        }
     }
 }

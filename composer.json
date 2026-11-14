@@ -34,10 +34,17 @@
             "php-http/discovery": true
         }
     },
+    "suggest": {
+        "manuxi/sulu-dashboard-bundle": "Shows the DeepL usage as a tile on the dashboard of the Sulu admin"
+    },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.94"
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "phpunit/phpunit": "^10.5 || ^11.0",
+        "phpstan/phpstan": "^2.1"
     },
     "scripts": {
+        "test": "@php vendor/bin/phpunit",
+        "phpstan": "@php vendor/bin/phpstan analyse --memory-limit=1G",
         "php-cs": "@php vendor/bin/php-cs-fixer fix --verbose --diff --dry-run",
         "php-cs-fix": "@php vendor/bin/php-cs-fixer fix"
     }

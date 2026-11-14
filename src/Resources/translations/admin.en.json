@@ -10,5 +10,12 @@
     "app.translator_bulk_translate_dialog_text": "This action will translate all fields into the target language. This process may take a long time for extensive content. Would you like to continue?",
     "app.translator_error": "Translation could not be loaded. Please check your internet connection and try again.",
     "app.translator_translate": "Click to translate field into target language",
-    "app.translator_undo_translation": "Click to undo translation of the field"
+    "app.translator_undo_translation": "Click to undo translation of the field",
+    "app.translator_dashboard_characters": "Characters this month",
+    "app.translator_dashboard_manage": "Manage DeepL account: www.deepl.com/your-account/subscription",
+    "app.translator_dashboard_no_key": "No DeepL API key is configured. Set it in sulu_ai_translator.deepl_api_key (environment variable DEEPL_API_KEY).",
+    "app.translator_dashboard_key_rejected": "DeepL rejected the API key. Please check DEEPL_API_KEY.",
+    "app.translator_dashboard_unreachable": "DeepL cannot be reached. Please check the internet connection of the server.",
+    "app.translator_dashboard_failed": "The usage could not be retrieved from DeepL. See the log for details.",
+    "app.translator_dashboard_no_usage": "DeepL returns no usage data for this account."
 }

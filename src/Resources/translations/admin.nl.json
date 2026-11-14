@@ -10,5 +10,12 @@
     "app.translator_bulk_translate_dialog_text": "Deze actie vertaalt alle velden naar de doeltaal. Bij uitgebreide inhoud kan dit proces lang duren. Wilt u doorgaan?",
     "app.translator_error": "De vertaling kon niet worden geladen. Controleer uw internetverbinding en probeer het opnieuw.",
     "app.translator_translate": "Klik om het veld naar de doeltaal te vertalen",
-    "app.translator_undo_translation": "Klik om de vertaling van het veld ongedaan te maken"
+    "app.translator_undo_translation": "Klik om de vertaling van het veld ongedaan te maken",
+    "app.translator_dashboard_characters": "Tekens deze maand",
+    "app.translator_dashboard_manage": "DeepL-account beheren: www.deepl.com/your-account/subscription",
+    "app.translator_dashboard_no_key": "Er is geen DeepL API-sleutel ingesteld. Stel deze in bij sulu_ai_translator.deepl_api_key (omgevingsvariabele DEEPL_API_KEY).",
+    "app.translator_dashboard_key_rejected": "DeepL heeft de API-sleutel geweigerd. Controleer DEEPL_API_KEY.",
+    "app.translator_dashboard_unreachable": "DeepL is niet bereikbaar. Controleer de internetverbinding van de server.",
+    "app.translator_dashboard_failed": "Het gebruik kon niet bij DeepL worden opgehaald. Details staan in het logboek.",
+    "app.translator_dashboard_no_usage": "DeepL levert geen gebruiksgegevens voor dit account."
 }
